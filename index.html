@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مُتابِع الطاعات اليومي | Daily Rose</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f766e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="Daily Rose">
+</head>
+
+<body>
+    <div class="background-blob blob-1"></div>
+    <div class="background-blob blob-2"></div>
+
+    <main class="container">
+        <header class="app-header">
+            <div class="header-content">
+                <h1 class="glow-text">وِرْدِك اليَومي</h1>
+                <p class="subtitle" id="current-date">جاري التحميل...</p>
+            </div>
+            <div class="progress-section">
+                <div class="progress-circle" id="overall-progress">
+                    <svg viewBox="0 0 36 36" class="circular-chart">
+                        <path class="circle-bg"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle" id="progress-path" stroke-dasharray="0, 100"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <text x="18" y="20.35" class="percentageValue" id="progress-text">0%</text>
+                    </svg>
+                </div>
+            </div>
+        </header>
+
+        <section class="tracker-card">
+            <div class="table-responsive">
+                <table class="spiritual-table">
+                    <thead>
+                        <tr>
+                            <th>العبادة</th>
+                            <th>التوقيت</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tracker-body">
+                        <!-- Content will be injected by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="reset-container">
+                <button class="reset-btn" onclick="resetProgress()">تصفير ليوم جديد</button>
+            </div>
+        </section>
+
+        <footer class="app-footer">
+            <p>"اللهم ثبتنا علي الطاعة"</p>
+        </footer>
+    </main>
+
+    <div id="toast" class="toast">تم تصفير جميع العدادات بنجاح</div>
+
+    <!-- Celebration Modal -->
+    <div id="celebration-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-icon">✨</div>
+            <h2>تقبل الله طاعتك!</h2>
+            <p id="dua-text">يارب أحمد وعلا يتجوزوا عاجلاً غير آجلاً</p>
+            <button class="modal-btn" onclick="closeModal()">آمين</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

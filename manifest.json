@@ -1,0 +1,16 @@
+{
+  "name": "مُتابِع الطاعات",
+  "short_name": "الأوراد",
+  "description": "تطبيق بسيط لمتابعة الأوراد اليومية والأذكار",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f766e",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2850/2850637.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
