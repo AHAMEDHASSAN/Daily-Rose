@@ -101,10 +101,108 @@ body {
     color: var(--text-muted);
 }
 
-/* Progress Circle */
-.progress-circle {
-    width: 100px;
+/* Stats Grid */
+.stats-grid {
+    display: flex;
+    gap: 20px;
+    align-items: center;
 }
+
+.stat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 700;
+}
+
+/* Progress & Timer Circles */
+.progress-circle {
+    width: 85px;
+}
+
+.circular-chart {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+}
+
+.circle-bg {
+    fill: none;
+    stroke: var(--border);
+    stroke-width: 3;
+}
+
+.circle {
+    fill: none;
+    stroke-width: 3.2;
+    stroke-linecap: round;
+    stroke: var(--primary-light);
+    transition: stroke-dasharray 0.5s ease, stroke 0.5s ease;
+    filter: drop-shadow(0 0 5px var(--primary-light));
+}
+
+#timer-path {
+    stroke: var(--primary-light);
+}
+
+.percentageValue,
+.timerValue {
+    fill: #fff;
+    font-family: 'Cairo';
+    font-size: 0.55em;
+    font-weight: 900;
+    text-anchor: middle;
+}
+
+.timerValue {
+    font-size: 0.35em;
+    /* Adjusted for HH:MM:SS */
+}
+
+/* Timer States */
+.timer-critical #timer-path {
+    stroke: #f43f5e;
+    filter: drop-shadow(0 0 8px #f43f5e);
+    animation: stroke-pulse 1.5s infinite;
+}
+
+.timer-warning #timer-path {
+    stroke: #f59e0b;
+    filter: drop-shadow(0 0 8px #f59e0b);
+}
+
+@keyframes stroke-pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Progress Circle Original */
+/* (Kept for compatibility or specific needs if any) */
 
 .circular-chart {
     display: block;
@@ -472,6 +570,135 @@ body {
     box-shadow: 0 10px 20px rgba(20, 184, 166, 0.3);
 }
 
+/* Add Task & Management Buttons */
+.add-task-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 16px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+}
+
+.add-task-btn:hover {
+    background: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(20, 184, 166, 0.4);
+}
+
+.task-title-cell {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.manage-btns {
+    display: flex;
+    gap: 8px;
+    opacity: 0.3;
+    transition: opacity 0.3s ease;
+}
+
+.stat-card:hover .manage-btns,
+.spiritual-table tr:hover .manage-btns {
+    opacity: 1;
+}
+
+.icon-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.icon-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+}
+
+.edit-btn:hover {
+    color: var(--primary-light);
+    border-color: var(--primary-light);
+}
+
+.delete-btn:hover {
+    color: #f43f5e;
+    border-color: #f43f5e;
+}
+
+/* Task Form Modal */
+.task-form-content {
+    max-width: 450px;
+    text-align: right;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: right;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-light);
+    background: rgba(15, 23, 42, 0.8);
+    box-shadow: 0 0 10px rgba(20, 184, 166, 0.1);
+}
+
+.modal-footer {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 30px;
+}
+
+.secondary-btn {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+}
+
+.secondary-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+    box-shadow: none;
+}
+
+
 /* Mobile Tweaks */
 @media (max-width: 600px) {
     body {
@@ -548,6 +775,20 @@ body {
         padding-right: 0;
         display: inline-block;
         margin-top: 10px;
+    }
+
+    .stats-grid {
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .stat-card {
+        padding: 5px;
+        min-width: 100px;
+    }
+
+    .progress-circle {
+        width: 70px;
     }
 
     .checkmark {

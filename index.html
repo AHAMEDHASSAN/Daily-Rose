@@ -29,15 +29,37 @@
                 <h1 class="glow-text">وِرْدِك اليَومي</h1>
                 <p class="subtitle" id="current-date">جاري التحميل...</p>
             </div>
-            <div class="progress-section">
-                <div class="progress-circle" id="overall-progress">
-                    <svg viewBox="0 0 36 36" class="circular-chart">
-                        <path class="circle-bg"
-                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path class="circle" id="progress-path" stroke-dasharray="0, 100"
-                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <text x="18" y="20.35" class="percentageValue" id="progress-text">0%</text>
-                    </svg>
+            <div class="stats-grid">
+                <!-- Overall Progress -->
+                <div class="stat-card" id="progress-card">
+                    <div class="progress-circle">
+                        <svg viewBox="0 0 36 36" class="circular-chart">
+                            <path class="circle-bg"
+                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="circle" id="progress-path" stroke-dasharray="0, 100"
+                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <text x="18" y="20.35" class="percentageValue" id="progress-text">0%</text>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">إجمالي الإنجاز</span>
+                    </div>
+                </div>
+
+                <!-- Day Countdown -->
+                <div class="stat-card" id="timer-card">
+                    <div class="progress-circle timer-circle">
+                        <svg viewBox="0 0 36 36" class="circular-chart">
+                            <path class="circle-bg"
+                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="circle" id="timer-path" stroke-dasharray="0, 100"
+                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <text x="18" y="20.35" class="timerValue" id="timer-text">00:00</text>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">نهاية اليوم</span>
+                    </div>
                 </div>
             </div>
         </header>
@@ -58,6 +80,7 @@
                 </table>
             </div>
             <div class="reset-container">
+                <button class="add-task-btn" onclick="openTaskModal()">إضافة عبادة جديدة +</button>
                 <button class="reset-btn" onclick="resetProgress()">تصفير ليوم جديد</button>
             </div>
         </section>
@@ -68,6 +91,41 @@
     </main>
 
     <div id="toast" class="toast">تم تصفير جميع العدادات بنجاح</div>
+
+    <!-- Task Entry Modal -->
+    <div id="task-modal" class="modal-overlay">
+        <div class="modal-content task-form-content">
+            <h2 id="modal-title">إضافة عبادة</h2>
+            <form id="task-form" onsubmit="saveTask(event)">
+                <input type="hidden" id="task-id-input">
+                <div class="form-group">
+                    <label>اسم العبادة</label>
+                    <input type="text" id="task-title-input" required placeholder="مثلاً: أذكار الصباح">
+                </div>
+                <div class="form-group">
+                    <label>التوقيت</label>
+                    <input type="text" id="task-time-input" required placeholder="مثلاً: بعد صلاة الفجر">
+                </div>
+                <div class="form-group">
+                    <label>القسم</label>
+                    <select id="task-category-input">
+                        <option value="quran">قرآن</option>
+                        <option value="morning">صباح</option>
+                        <option value="evening">مساء</option>
+                        <option value="night">ليل</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>العدد المستهدف (اختياري)</label>
+                    <input type="number" id="task-target-input" min="0" placeholder="0 إذا لم يكن هناك عداد">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="modal-btn secondary-btn" onclick="closeTaskModal()">إلغاء</button>
+                    <button type="submit" class="modal-btn">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Celebration Modal -->
     <div id="celebration-modal" class="modal-overlay">

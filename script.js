@@ -1,5 +1,5 @@
 // Task Data
-const spiritualTasks = [
+const defaultTasks = [
     { id: 'quran_morning', title: 'ورد القرآن الكريم', time: 'بعد صلاة الفجر', category: 'quran' },
     { id: 'morning_azkar', title: 'أذكار الصباح', time: 'بعد صلاة الفجر', category: 'morning' },
     { id: 'evening_azkar', title: 'أذكار المساء', time: 'بعد العصر', category: 'evening' },
@@ -11,6 +11,8 @@ const spiritualTasks = [
     { id: 'hawqala_100', title: 'لا حول ولا قوة إلا بالله', time: 'بعد صلاة العشاء', category: 'night', target: 100 },
     { id: 'mulk_surah', title: 'قراءة سورة الملك', time: 'قبل النوم', category: 'night' }
 ];
+
+let spiritualTasks = JSON.parse(localStorage.getItem('spiritual_tasks_v1')) || defaultTasks;
 
 // Initialize State
 let userProgress = JSON.parse(localStorage.getItem('spiritual_tracker_v1')) || {};
@@ -32,6 +34,10 @@ const trackerBody = document.getElementById('tracker-body');
 const progressPath = document.getElementById('progress-path');
 const progressText = document.getElementById('progress-text');
 const currentDateEl = document.getElementById('current-date');
+const timerText = document.getElementById('timer-text');
+const timerPath = document.getElementById('timer-path');
+const timerCard = document.getElementById('timer-card');
+let warningShown = false;
 
 // Set Current Date
 function updateDate() {
@@ -50,7 +56,13 @@ function renderTasks() {
         return `
             <tr>
                 <td>
-                    <span class="badge badge-${task.category}">${task.title}</span>
+                    <div class="task-title-cell">
+                        <span class="badge badge-${task.category}">${task.title}</span>
+                        <div class="manage-btns">
+                            <button class="icon-btn edit-btn" onclick="editTask('${task.id}')">✏️</button>
+                            <button class="icon-btn delete-btn" onclick="deleteTask('${task.id}')">🗑️</button>
+                        </div>
+                    </div>
                 </td>
                 <td>${task.time}</td>
                 <td class="status-cell">
@@ -117,6 +129,64 @@ function updateProgress() {
     progressPath.setAttribute('stroke-dasharray', `${percentage}, 100`);
 }
 
+// Countdown Timer Logic
+function updateCountdown() {
+    const now = new Date();
+    const midnight = new Date();
+    midnight.setHours(24, 0, 0, 0); 
+
+    const diff = midnight - now; 
+    
+    if (diff <= 0) {
+        timerText.textContent = "00:00";
+        timerPath.setAttribute('stroke-dasharray', '100, 100');
+        return;
+    }
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    // Format display (HH:MM:SS)
+    timerText.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+    // Calculate percentage (elapsed)
+    const totalSecondsInDay = 24 * 60 * 60;
+    const secondsRemaining = diff / 1000;
+    const percentageRemaining = (secondsRemaining / totalSecondsInDay) * 100;
+    const percentageElapsed = 100 - percentageRemaining;
+
+    if (timerPath) {
+        timerPath.setAttribute('stroke-dasharray', `${percentageElapsed}, 100`);
+    }
+
+    // Color Transitions & Warnings
+    if (hours < 2) {
+        timerCard.className = 'stat-card timer-critical';
+        if (hours < 1 && !warningShown) {
+            showSimpleToast("تنبيه: الوقت قارب على الانتهاء! استكمل أورادك");
+            warningShown = true;
+        }
+    } else if (hours < 6) {
+        timerCard.className = 'stat-card timer-warning';
+    } else {
+        timerCard.className = 'stat-card';
+    }
+}
+
+function showSimpleToast(msg) {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    const originalText = toast.textContent;
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => { toast.textContent = originalText; }, 500);
+    }, 4000);
+}
+
+
 // Celebration & Voice Prayer
 function confettiEffect() {
     // Visual Effect
@@ -165,11 +235,88 @@ function showToast() {
     }, 3000);
 }
 
+// Task Management Functions
+window.openTaskModal = function(taskId = null) {
+    const modal = document.getElementById('task-modal');
+    const titleInput = document.getElementById('task-title-input');
+    const timeInput = document.getElementById('task-time-input');
+    const categorySelect = document.getElementById('task-category-input');
+    const targetInput = document.getElementById('task-target-input');
+    const idInput = document.getElementById('task-id-input');
+    const modalTitle = document.getElementById('modal-title');
+
+    if (taskId) {
+        const task = spiritualTasks.find(t => t.id === taskId);
+        modalTitle.textContent = "تعديل عبادة";
+        idInput.value = task.id;
+        titleInput.value = task.title;
+        timeInput.value = task.time;
+        categorySelect.value = task.category;
+        targetInput.value = task.target || "";
+    } else {
+        modalTitle.textContent = "إضافة عبادة";
+        idInput.value = "";
+        titleInput.value = "";
+        timeInput.value = "";
+        categorySelect.value = "quran";
+        targetInput.value = "";
+    }
+
+    modal.classList.add('active');
+}
+
+window.closeTaskModal = function() {
+    document.getElementById('task-modal').classList.remove('active');
+}
+
+window.saveTask = function(event) {
+    event.preventDefault();
+    const id = document.getElementById('task-id-input').value;
+    const title = document.getElementById('task-title-input').value;
+    const time = document.getElementById('task-time-input').value;
+    const category = document.getElementById('task-category-input').value;
+    const target = parseInt(document.getElementById('task-target-input').value) || null;
+
+    if (id) {
+        // Edit existing
+        const index = spiritualTasks.findIndex(t => t.id === id);
+        spiritualTasks[index] = { ...spiritualTasks[index], title, time, category, target };
+    } else {
+        // Add new
+        const newId = 'task_' + Date.now();
+        spiritualTasks.push({ id: newId, title, time, category, target });
+    }
+
+    localStorage.setItem('spiritual_tasks_v1', JSON.stringify(spiritualTasks));
+    closeTaskModal();
+    renderTasks();
+    updateProgress();
+}
+
+window.deleteTask = function(taskId) {
+    if (confirm('هل أنت متأكد من حذف هذه العبادة؟')) {
+        spiritualTasks = spiritualTasks.filter(t => t.id !== taskId);
+        delete userProgress[taskId];
+        delete userCounts[taskId];
+        localStorage.setItem('spiritual_tasks_v1', JSON.stringify(spiritualTasks));
+        localStorage.setItem('spiritual_tracker_v1', JSON.stringify(userProgress));
+        localStorage.setItem('spiritual_counts_v1', JSON.stringify(userCounts));
+        renderTasks();
+        updateProgress();
+    }
+}
+
+window.editTask = function(taskId) {
+    openTaskModal(taskId);
+}
+
 // App Initialization
 function init() {
     updateDate();
     renderTasks();
     updateProgress();
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
 }
 
 // Register Service Worker for PWA
