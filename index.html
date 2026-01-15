@@ -79,6 +79,15 @@
                     </tbody>
                 </table>
             </div>
+            <div class="settings-section">
+                <div class="form-group msg-group">
+                    <label>رسالة الختام المفضلة (ستظهر عند الإكمال)</label>
+                    <div class="msg-input-wrapper">
+                        <textarea id="custom-dua-input" placeholder="اكتب دعاءً أو رسالة تشجيعية لنفسك هنا..."
+                            onchange="saveCustomDua()"></textarea>
+                    </div>
+                </div>
+            </div>
             <div class="reset-container">
                 <button class="add-task-btn" onclick="openTaskModal()">إضافة عبادة جديدة +</button>
                 <button class="reset-btn" onclick="resetProgress()">تصفير ليوم جديد</button>

@@ -3,8 +3,8 @@ const defaultTasks = [
     { id: 'quran_morning', title: 'ورد القرآن الكريم', time: 'بعد صلاة الفجر', category: 'quran' },
     { id: 'morning_azkar', title: 'أذكار الصباح', time: 'بعد صلاة الفجر', category: 'morning' },
     { id: 'evening_azkar', title: 'أذكار المساء', time: 'بعد العصر', category: 'evening' },
-    { id: 'quran_hifz', title: 'حفظ قرآن (علا)', time: 'بعد العصر', category: 'quran' },
-    { id: 'tajweed_lesson', title: 'درس تجويد (أحمد)', time: 'بعد العصر', category: 'quran' },
+    { id: 'quran_hifz', title: 'حفظ قرآن', time: 'بعد العصر', category: 'quran' },
+    { id: 'tajweed_lesson', title: 'درس تجويد', time: 'بعد العصر', category: 'quran' },
     { id: 'tasbeeh_100', title: 'سبحان الله وبحمده سبحان الله العظيم', time: 'بعد صلاة العشاء', category: 'night', target: 100 },
     { id: 'istighfar_100', title: 'الاستغفار', time: 'بعد صلاة العشاء', category: 'night', target: 100 },
     { id: 'salat_nabi_100', title: 'الصلاة على النبي', time: 'بعد صلاة العشاء', category: 'night', target: 100 },
@@ -14,10 +14,30 @@ const defaultTasks = [
 
 let spiritualTasks = JSON.parse(localStorage.getItem('spiritual_tasks_v1')) || defaultTasks;
 
+// Data Migration: Remove names from existing tasks if they exist
+spiritualTasks = spiritualTasks.map(task => {
+    if (task.title.includes('(علا)')) task.title = task.title.replace('(علا)', '').trim();
+    if (task.title.includes('(أحمد)')) task.title = task.title.replace('(أحمد)', '').trim();
+    return task;
+});
+localStorage.setItem('spiritual_tasks_v1', JSON.stringify(spiritualTasks));
+
+const motivationalMessages = [
+    "أحسنت! تقبل الله منك",
+    "ما شاء الله، استمر في طاعتك",
+    "تبارك الله، زادك الله من فضله",
+    "خطوة رائعة نحو الجنة",
+    "بارك الله في وقتك وجهدك",
+    "عمل صالح يرفعك درجات",
+    "السعادة في طاعة الله، أحسنت",
+    "نور الله قلبك بالإيمان"
+];
+
 // Initialize State
 let userProgress = JSON.parse(localStorage.getItem('spiritual_tracker_v1')) || {};
 let userCounts = JSON.parse(localStorage.getItem('spiritual_counts_v1')) || {};
 let lastDate = localStorage.getItem('spiritual_last_date_v1');
+let customDua = localStorage.getItem('spiritual_custom_dua_v1') || "";
 
 // Auto Reset if New Day
 const todayDateString = new Date().toDateString();
@@ -51,7 +71,8 @@ function renderTasks() {
     trackerBody.innerHTML = spiritualTasks.map(task => {
         const isCompleted = userProgress[task.id];
         const currentCount = userCounts[task.id] || 0;
-        const hasCounter = !!task.target;
+        const target = parseInt(task.target);
+        const hasCounter = !isNaN(target) && target > 0;
 
         return `
             <tr>
@@ -68,8 +89,8 @@ function renderTasks() {
                 <td class="status-cell">
                     <div class="status-controls">
                         ${hasCounter ? `
-                            <button class="counter-btn" onclick="incrementCount('${task.id}', ${task.target})">
-                                ${currentCount} / ${task.target}
+                            <button class="counter-btn" onclick="incrementCount('${task.id}', ${target})">
+                                ${currentCount} / ${target}
                             </button>
                         ` : ''}
                         <label class="checkbox-container">
@@ -94,7 +115,7 @@ window.incrementCount = function(taskId, target) {
     
     if (userCounts[taskId] >= target) {
         userProgress[taskId] = true;
-        confettiEffect();
+        playSuccessFeedback();
     }
 
     localStorage.setItem('spiritual_counts_v1', JSON.stringify(userCounts));
@@ -102,22 +123,41 @@ window.incrementCount = function(taskId, target) {
     
     renderTasks();
     updateProgress();
+    checkAllDone();
 }
 
 // Toggle Task
 window.toggleTask = function(taskId) {
     userProgress[taskId] = !userProgress[taskId];
     
-    // If unchecked, maybe reset count? (User's choice, let's keep count for now)
+    if (userProgress[taskId]) {
+        playSuccessFeedback();
+    }
     
     localStorage.setItem('spiritual_tracker_v1', JSON.stringify(userProgress));
     updateProgress();
-    
-    const allDone = spiritualTasks.every(t => userProgress[t.id]);
+    checkAllDone();
+}
+
+function checkAllDone() {
+    const allDone = spiritualTasks.length > 0 && spiritualTasks.every(t => userProgress[t.id]);
     if (allDone) {
-        confettiEffect();
+        setTimeout(confettiEffect, 1000); // Slight delay to separate from single task feedback
     }
 }
+
+function playSuccessFeedback() {
+    const randomMsg = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
+    showSimpleToast(randomMsg);
+    
+    const msg = new SpeechSynthesisUtterance();
+    msg.text = randomMsg;
+    msg.lang = 'ar-SA';
+    msg.rate = 1.0;
+    window.speechSynthesis.speak(msg);
+}
+
+
 
 // Update Progress Circle
 function updateProgress() {
@@ -197,16 +237,28 @@ function confettiEffect() {
 
     // Show Modal
     const modal = document.getElementById('celebration-modal');
+    const duaDisplay = document.getElementById('dua-text');
+    
+    // Use custom dua if available, otherwise hide or use default
+    duaDisplay.textContent = customDua || "تقبل الله طاعاتكم وزادكم من فضله";
+    
     modal.classList.add('active');
 
     // Voice Prayer (Speech Synthesis)
-    const prayerText = document.getElementById('dua-text').textContent;
+    const prayerText = duaDisplay.textContent;
     const msg = new SpeechSynthesisUtterance();
     msg.text = prayerText;
     msg.lang = 'ar-SA';
     msg.rate = 0.9;
     window.speechSynthesis.speak(msg);
 }
+
+window.saveCustomDua = function() {
+    const input = document.getElementById('custom-dua-input');
+    customDua = input.value;
+    localStorage.setItem('spiritual_custom_dua_v1', customDua);
+}
+
 
 window.closeModal = function() {
     document.getElementById('celebration-modal').classList.remove('active');
@@ -316,6 +368,11 @@ function init() {
     renderTasks();
     updateProgress();
     updateCountdown();
+    
+    // Set custom dua input value
+    const duaInput = document.getElementById('custom-dua-input');
+    if (duaInput) duaInput.value = customDua;
+
     setInterval(updateCountdown, 1000);
 }
 
